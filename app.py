@@ -14,16 +14,10 @@ st.set_page_config(
 st.title("📊 Dashboard Visualisasi Data Kuesioner")
 
 # ==============================
-# UPLOAD FILE (EXCEL)
+# LOAD FILE DARI FOLDER
 # ==============================
-uploaded_file = st.file_uploader(
-    "Upload File Excel Kuesioner",
-    type=["xlsx"]
-)
-
-if uploaded_file is not None:
-
-    df = pd.read_excel(uploaded_file)
+try:
+    df = pd.read_excel("datakuesioner.xlsx")
 
     # Ambil hanya kolom pertanyaan (Q1–Q17)
     df_pertanyaan = df.iloc[:, 1:]
@@ -43,8 +37,6 @@ if uploaded_file is not None:
     }
 
     df_numeric = df_pertanyaan.replace(mapping)
-
-    # Paksa semua jadi numeric
     df_numeric = df_numeric.apply(pd.to_numeric, errors='coerce')
 
     # ==============================
@@ -53,8 +45,6 @@ if uploaded_file is not None:
     st.subheader("1️⃣ Distribusi Jawaban Keseluruhan")
 
     all_values = df_numeric.to_numpy().flatten()
-
-    # Bersihkan data
     series = pd.to_numeric(pd.Series(all_values), errors='coerce')
     series = series.dropna().astype(int)
 
@@ -169,5 +159,5 @@ if uploaded_file is not None:
 
     st.plotly_chart(fig5, use_container_width=True)
 
-else:
-    st.info("Silakan upload file Excel (.xlsx)")
+except FileNotFoundError:
+    st.error("File 'datakuesioner.xlsx' tidak ditemukan di folder project.")
